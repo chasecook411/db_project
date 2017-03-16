@@ -48,7 +48,7 @@
 			$user_id = $row['user_id'];
 		?>
 		<div id="greetings">
-			<h3> Hello <?php echo $row['f_name'] . " " . $row['l_name']; ?>! </h3>
+			<h3> Hello <a href="profile.php"><?php echo $row['f_name'] . " " . $row['l_name']; ?></a>! </h3>
 		</div>
 		<div id="menu">
 			<!-- here is where the menu will go -->

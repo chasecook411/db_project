@@ -1,0 +1,20 @@
+#login {
+	background-color: #001f3f;
+	margin: auto;
+	width: 50%;
+	border: 3px solid black;
+	padding: 10px;
+}
+
+#user {
+
+}
+
+#pass {
+
+}
+
+.text {
+	color: white;
+	font: message-box;
+}

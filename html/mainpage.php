@@ -71,6 +71,7 @@
 			    	}
 		    	}
 
+				?><h2>What's new?</h2><?php
 				$query = sprintf("select email, content from users u inner join (select content, user_id from posts where user_id in (select following from follows where follower = $user_id)) p on u.user_id = p.user_id;");
 				//echo $query;
 
@@ -85,6 +86,25 @@
 		    	while ($row = mysql_fetch_assoc($result)) {
 		    		echo $row['email'] . " " . $row['content']; 
 		    		?></br><?php
+		    	}
+
+	    		?><h2>Follow other users!</h2><?php
+		    	$query = sprintf("select f_name, l_name, user_id from users where user_id not in ($user_id)");
+
+		    	$result = mysql_query($query);
+
+		    	if (!$result) {
+		    		$message = 'Invalid query: ' . mysql_error() . '\n';
+		    		$message .= 'Whole query: ' . $query;
+		    		die("Unable to collect other users");
+		    	}
+
+
+
+		    	while ($row = mysql_fetch_assoc($result)) {
+		    		$link = "add_user.php?user=" . $user_id . '&follows=' . $row['user_id']; 
+		    		?><a href=<?php echo $link;?>><?php echo $row['f_name'] . ' ' . $row['l_name'];
+		    		?></a></br><?php
 		    	}
 			?>
 		</div>

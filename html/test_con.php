@@ -29,6 +29,19 @@ while ($row = mysql_fetch_assoc($result)) {
 	?>Email Address: <?php echo $row["email"]; ?> </br><?php
 }
 
+
+$query = sprintf("select * from follows");
+
+?><h1>Follows table</h1><?php
+
+$result = mysql_query($query);
+
+while ($row = mysql_fetch_assoc($result)) {
+	?>Follower: <?php echo $row['follower']; ?></br><?php
+	?>Following: <?php echo $row['following']; ?></br><?php
+	?>Last Name: <?php echo $row['l_name']; ?></br><?php 
+}
+
 mysql_close($conn);
 
 

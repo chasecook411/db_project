@@ -34,8 +34,8 @@
 		if (isset($_GET["is_following"]) && isset($_GET["uid"]) && isset($_GET["follows"])) {
 			//echo $_GET;
 			if ($_GET["is_following"] == "yes") {
-				$query = "insert into follows values(".$_GET["uid"].",". $_GET["follows"].",now());";
-
+				$query = "insert into follows values(" . $_GET["follows"] . ',' . $_GET["uid"] . ",now());";
+				echo $query;
 				$result = mysql_query($query);
 
 				if (!$result) {
@@ -47,16 +47,36 @@
 			}
 		}
 
+		if (isset($_GET['comment']) && isset($_GET['comment_id']) && isset($_GET['other_user_id'])) {
+			$comment = $_GET['comment'];
+			$query = sprintf("insert into posts values (" . $_GET["uc_id"] . ",NULL,NOW(),". "'$comment'". ", " . $_GET['other_user_id'] . ",0," . $_GET["comment_id"] . ");");
+
+			echo $query;
+
+			$result = mysql_query($query);
+
+			if (!$result) {
+				    $message  = 'Invalid query: ' . mysql_error() . "\n";
+				    echo $message ?> <br> <?php
+				    $message .= 'Whole query: ' . $query;
+				    echo $message ?> <br> <?php
+				    die("Invalid User Name or Password!");			    
+			}
+
+		}
+
 		if (isset($_GET["is_like"]) && isset($_GET["p_uid"]) && isset($_GET["post_id"])) {
 			//echo $_GET;
 			if ($_GET["is_like"] == "yes") {
-				$query = "insert into likes values(" . $_GET['p_uid'] . ',' . $_GET['post_id'] . ');';
+				$query = "insert into likes values(" . $_GET['post_id'] . ',' . $_GET['p_uid'] .');';
  
 				$result = mysql_query($query);
 
 				if (!$result) {
 				    $message  = 'Invalid query: ' . mysql_error() . "\n";
+				    echo $message;
 				    $message .= 'Whole query: ' . $query;
+				    echo $message;
 				    die("Unable to like post!");
 						    
 				}
@@ -118,7 +138,7 @@
 
 				?><h3>Who Your Currently Following</h3><?php
 
-				$query = sprintf("select u.f_name, u.l_name from follows f, users u where follower = 1 and f.following = u.user_id");
+				$query = sprintf("select u.f_name, u.l_name from follows f, users u where follower = $user_id and f.following = u.user_id");
 				$result = mysql_query($query);
 				
 
@@ -141,9 +161,6 @@
 					?><li><?php echo $row['content'];?></li><a href="mainpage.php?profile_page=yes&delete_post=<?php echo $row['post_id'];?>">Delete this post?</a> <?php  
 				}
 				?></ul><?php
-
-
-
 			}
 		} else if ($row = mysql_fetch_assoc($result)) {
 			$user_id = $row['user_id'];
@@ -163,12 +180,14 @@
 			</form>
 			<?php
 				if (isset($_GET["post"])) {
-					$query = "INSERT INTO posts VALUES($user_id,NULL, NOW(), '". $_GET["post"]."',$user_id, 0, $user_id);";
+					$query = "INSERT INTO posts VALUES($user_id,NULL, NOW(), '". $_GET["post"]."',$user_id, 0, NULL);";
 					
 					$result = mysql_query($query);
 					if (!$result) {
 			    		$message  = 'Invalid query: ' . mysql_error() . "\n";
+			    		echo $message;
 			    		$message .= 'Whole query: ' . $query;
+			    		echo $message;
 			    		die("Unable to insert post!");
 			    	}
 		    	}
@@ -177,7 +196,8 @@
 				//$query = sprintf("select f_name,email, content from users u inner join (select content, user_id from posts where user_id in (select following from follows where follower = $user_id)) p on u.user_id = p.user_id;");
 				//echo $query;
 
-				$query = sprintf("select u.f_name, p.content, p.post_id, p.num_likes from users u inner join (select * from posts where author_id = user_id and parent_id is null and user_id in (select following from follows where follower = $user_id)) p on u.user_id=p.user_id");
+				$query = sprintf("select u.user_id, u.f_name, p.content, p.post_id, p.num_likes from users u inner join (select * from posts where author_id = user_id and parent_id is null and user_id in (select following from follows where follower = $user_id)) p on u.user_id=p.user_id order by post_time desc");
+
 				$result = mysql_query($query);
 				if (!$result) {
 		    		$message  = 'Invalid query: ' . mysql_error() . "\n";
@@ -189,8 +209,15 @@
 		    	while ($row = mysql_fetch_assoc($result)) {
 		    		echo '@' . $row['f_name'] . " " . $row['content'] . ' ';
 		    		?><img src="images/like.svg" height=12 width=12><?php echo ' * ' .$row['num_likes'] . ' '; 
-		    		?><a href="mainpage.php?is_like=yes&p_uid=<?php echo $user_id . '&post_id=' . $row['post_id']?>">Like this post!</a><?php
+		    		?><a href="mainpage.php?is_like=yes&p_uid=<?php echo $user_id . '&post_id=' . $row['post_id']?>">Like this post!</a>
+
+
+		    		</br>
+
+
+		    		<?php
 		    		$query = sprintf("select u.f_name, p.content from posts p, users u where parent_id=" . $row['post_id'] ." and u.user_id = p.user_id");
+		    		//echo $query;
 		    		$result2 = mysql_query($query);
 		    		
 		    		if (!$result2) {
@@ -204,7 +231,14 @@
 		    			?><li><?php echo '@' . $row2['f_name'] . ' ' .$row2['content'];?></li><?php
 		    			?></br><?php
 		    		}
-		    		?></ul><?php
+		    		?></ul>
+		    			<form method="GET">
+							Any comments?:<input type="text" name="comment"></input>
+							<input hidden name="comment_id" value="<?php echo $row['post_id']?>"></input>
+							<input hidden name="other_user_id" value="<?php echo $row['user_id']?>"></input>
+							<input hidden name="uc_id" value="<?php echo $user_id?>"></input>
+						<input id="postit" type="submit" value="Post it!"></input>
+					</form><?php
 		    	}
 
 	    		?><h2>Follow other users!</h2><?php

@@ -7,7 +7,7 @@ if (isset($_POST["email"])) {
 			if (isset($_POST["fname"])) { 
 
 
-				$conn = mysql_connect('localhost', 'root', '', 3306);
+				$conn = mysql_connect('localhost', 'root', 'root', 3306);
 
 				if (!$conn) {
 					die("Cound no connect: " . mysql_error());

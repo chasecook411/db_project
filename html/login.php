@@ -7,7 +7,7 @@
 
 	<body>
 		<div id="login">
-			<form action="mainpage.php" method="POST">
+			<form action="mainpage.php" method="GET">
 				<div class="text">Username:</div><input id="user" type="text" name="user"></input></br>
 				<div class="text">Password:</div><input id="pass" type="password" name="pass"></input></br>
 				<input id="submit" type="submit"></input>
